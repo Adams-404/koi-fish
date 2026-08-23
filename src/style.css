@@ -1,0 +1,777 @@
+/* ------------------------------------------------------------------ tokens */
+:root {
+  --red: #a82818;
+  --red-deep: #8e1d10;
+  --ink: #f6f0e9;
+  --dim: rgba(246, 240, 233, 0.5);
+  --hair: rgba(246, 240, 233, 0.22);
+
+  --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --sans: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --soft: "Quicksand", "Archivo", sans-serif;
+
+  --pad: clamp(18px, 3.1vw, 46px);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  /* Clicking the hero drops a ripple, so nothing in it should select. Inputs
+     and the copy in the panels below opt back in. */
+  -webkit-user-select: none;
+  user-select: none;
+  background: var(--red);
+  color: var(--ink);
+  font-family: var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* the whole page starts hidden and is revealed once the koi has loaded */
+body:not(.ready) main,
+body:not(.ready) .nav {
+  opacity: 0;
+}
+
+:focus-visible {
+  outline: 1px solid var(--ink);
+  outline-offset: 3px;
+}
+
+::selection {
+  background: var(--ink);
+  color: var(--red);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* small letterspaced technical label, used a dozen times over */
+.rail,
+.panel__meta,
+.hero__foot,
+.work__n,
+.work__y,
+.stats dt,
+.foot__base,
+.foot__soc,
+.loader__row {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+}
+
+/* ------------------------------------------------------------------ loader */
+#loader {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: var(--red);
+  display: grid;
+  align-content: center;
+  justify-content: center;
+  gap: 14px;
+  transition: opacity 0.7s var(--ease);
+}
+#loader.gone {
+  opacity: 0;
+  pointer-events: none;
+}
+.loader__bar {
+  width: min(240px, 52vw);
+  height: 1px;
+  background: var(--hair);
+  overflow: hidden;
+}
+.loader__bar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: var(--ink);
+  transition: width 0.35s linear;
+}
+.loader__row {
+  display: flex;
+  justify-content: space-between;
+  color: var(--dim);
+}
+
+/* ------------------------------------------------------------------- stage */
+#stage {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  will-change: opacity;
+}
+#stage canvas {
+  display: block;
+}
+
+/* --------------------------------------------------------------------- nav */
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  padding: var(--pad);
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  transition: opacity 0.8s var(--ease);
+  mix-blend-mode: normal;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand__mark {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--ink);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.brand__mark::after {
+  content: "";
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--ink);
+  transition: transform 0.5s var(--ease);
+}
+.brand:hover .brand__mark::after {
+  transform: scale(1.6);
+}
+.brand__name {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+
+.nav__right {
+  display: flex;
+  align-items: center;
+  gap: clamp(12px, 1.3vw, 20px);
+}
+/* "Products" and "Menu" are set in sentence case in the comp, not as the
+   letterspaced mono used everywhere else in the chrome. */
+.nav__link,
+.menu-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-variation-settings:
+    "wdth" 100,
+    "wght" 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.nav__link {
+  color: var(--ink);
+  opacity: 0.85;
+  transition: opacity 0.3s;
+}
+.nav__link:hover {
+  opacity: 1;
+}
+
+.menu-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--hair);
+  background: none;
+  color: var(--ink);
+  cursor: pointer;
+  transition:
+    border-color 0.35s,
+    background 0.35s;
+}
+.menu-btn:hover {
+  border-color: var(--ink);
+}
+.menu-btn__ico {
+  width: 13px;
+  display: grid;
+  gap: 4px;
+}
+.menu-btn__ico b {
+  height: 1px;
+  background: var(--ink);
+  transition: transform 0.4s var(--ease);
+}
+.menu-btn[aria-expanded="true"] .menu-btn__ico b:first-child {
+  transform: translateY(2.5px) rotate(45deg);
+}
+.menu-btn[aria-expanded="true"] .menu-btn__ico b:last-child {
+  transform: translateY(-2.5px) rotate(-45deg);
+}
+
+/* ------------------------------------------------------------------- sheet */
+.sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  background: var(--red-deep);
+  padding: calc(var(--pad) * 3) var(--pad) var(--pad);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 0.75s var(--ease);
+}
+.sheet.open {
+  clip-path: inset(0 0 0 0);
+}
+.sheet__list {
+  list-style: none;
+  margin: auto 0;
+  padding: 0;
+}
+.sheet__list a {
+  display: flex;
+  align-items: baseline;
+  gap: 22px;
+  padding: clamp(6px, 1.1vw, 14px) 0;
+  font-size: clamp(34px, 7vw, 88px);
+  font-variation-settings:
+    "wdth" 108,
+    "wght" 300;
+  line-height: 1;
+  opacity: 0.62;
+  transition:
+    opacity 0.4s,
+    transform 0.5s var(--ease);
+}
+.sheet__list a::before {
+  content: attr(data-i);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.19em;
+  opacity: 0.7;
+}
+.sheet__list a:hover {
+  opacity: 1;
+  transform: translateX(14px);
+}
+.sheet__foot {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+
+/* -------------------------------------------------------------------- hero */
+.hero {
+  /* deliberately no z-index: the koi canvas has to slot *between* this
+     section's own children (type below it, labels above it) */
+  position: relative;
+  height: 100svh;
+  min-height: 540px;
+  display: grid;
+  place-items: center;
+}
+
+.filter-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.hero__block {
+  display: grid;
+  justify-items: center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__type,
+  .tag {
+    filter: none;
+  }
+}
+
+.hero__type {
+  /* Seen through the water surface, so it bends when the surface does. Applied
+     here and on .tag rather than to the wrapper: a filter makes an element a
+     containing block for absolutely positioned descendants, which would
+     re-anchor both tags off the type block instead of the viewport. */
+  filter: url(#water);
+  margin: 0;
+  position: relative;
+  z-index: 1; /* under the koi */
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  line-height: 0.82;
+  /* Sized so CREATE spans 69.5% of the viewport, as in the comp. It was
+     at 19.4vw, which rendered 86% wide and drove DAILY's D into the
+     "budarina" note. */
+  font-size: clamp(52px, 15.6vw, 370px);
+  font-variation-settings:
+    "wdth" 112,
+    "wght" 285;
+  letter-spacing: -0.012em;
+  text-transform: uppercase;
+  transform: translateY(-5.6svh);
+  pointer-events: none;
+}
+.hero__type span {
+  display: block;
+}
+
+/* Archivo's DAILY runs narrower against its CREATE than the comp's face does,
+   so the second line is widened on the font's own width axis — truer to the
+   letterforms than tracking it out would be. */
+.l2 {
+  font-variation-settings:
+    "wdth" 121,
+    "wght" 285;
+}
+
+/* The two soft lowercase notes tucked into the type. Same layer as the display
+   type, i.e. *under* the koi — it should swim over them cleanly rather than
+   leave half a word stranded on a pale fin. */
+.tag {
+  filter: url(#water);
+  position: absolute;
+  z-index: 1;
+  font-family: var(--soft);
+  font-size: clamp(12px, 1.35vw, 21px);
+  font-weight: 500;
+  line-height: 1.28;
+  letter-spacing: 0.005em;
+  pointer-events: none;
+}
+.tag--l {
+  /* The comp leaves half a percent of air between this and the D of DAILY;
+     matched to where our D actually lands. */
+  right: 75.6%;
+  top: 46%;
+  text-align: right;
+}
+.tag--r {
+  /* Tucked against the foot of the Y, as in the comp — it sits beside the
+     stem, ending flush with the letter's base, not hanging below it. */
+  left: 71.5%;
+  top: 58%;
+}
+
+/* rotated edge labels */
+.rail {
+  position: absolute;
+  z-index: 6;
+  top: 50%;
+  color: var(--dim);
+  white-space: nowrap;
+}
+.rail--l {
+  left: var(--pad);
+  transform: translateY(-50%) rotate(180deg);
+  writing-mode: vertical-rl;
+}
+.rail--r {
+  right: var(--pad);
+  transform: translateY(-50%);
+  writing-mode: vertical-rl;
+}
+
+.hero__cta {
+  position: absolute;
+  z-index: 6;
+  bottom: calc(var(--pad) + 34px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 22px;
+  border: 1px solid var(--hair);
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition:
+    background 0.4s var(--ease),
+    color 0.4s var(--ease),
+    border-color 0.4s var(--ease);
+}
+.btn i {
+  font-style: normal;
+  transition: transform 0.4s var(--ease);
+}
+.btn:hover {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--red);
+}
+.btn:hover i {
+  transform: translate(2px, -2px);
+}
+.btn--fill {
+  border-color: rgba(246, 240, 233, 0.4);
+}
+
+.hero__foot {
+  position: absolute;
+  z-index: 6;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: var(--pad);
+  display: flex;
+  justify-content: space-between;
+  color: var(--dim);
+  pointer-events: none;
+}
+.scroll-cue::after {
+  content: "";
+  display: inline-block;
+  width: 26px;
+  height: 1px;
+  margin-left: 10px;
+  vertical-align: 3px;
+  background: currentColor;
+  transform-origin: left;
+  animation: cue 2.4s var(--ease) infinite;
+}
+@keyframes cue {
+  0%,
+  100% {
+    transform: scaleX(0.25);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+}
+
+/* ------------------------------------------------------------------ panels */
+.panel {
+  position: relative;
+  z-index: 4; /* above the koi canvas */
+  background: var(--red);
+  padding: clamp(70px, 11vw, 170px) var(--pad);
+}
+.panel + .panel,
+.panel + .foot {
+  border-top: 1px solid var(--hair);
+}
+
+.panel__head {
+  display: flex;
+  align-items: center;
+  gap: clamp(16px, 2.6vw, 34px);
+  margin-bottom: clamp(38px, 5vw, 76px);
+}
+.panel__head h2 {
+  margin: 0;
+  font-size: clamp(26px, 4.2vw, 62px);
+  font-variation-settings:
+    "wdth" 110,
+    "wght" 300;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  line-height: 1;
+  white-space: nowrap;
+}
+.rule {
+  flex: 1;
+  height: 1px;
+  background: var(--hair);
+}
+.panel__meta {
+  color: var(--dim);
+  white-space: nowrap;
+}
+
+/* ----------------------------------------------------------------- work list */
+.work {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--hair);
+}
+.work__row {
+  display: grid;
+  grid-template-columns: 46px minmax(0, 1fr) minmax(0, 1.05fr) 62px;
+  align-items: center;
+  gap: clamp(12px, 2vw, 28px);
+  padding: clamp(18px, 2.4vw, 30px) 4px;
+  border-bottom: 1px solid var(--hair);
+  cursor: pointer;
+  transition:
+    padding-left 0.5s var(--ease),
+    background 0.5s var(--ease),
+    opacity 0.4s;
+}
+.work:hover .work__row {
+  opacity: 0.42;
+}
+.work__row:hover {
+  opacity: 1;
+  padding-left: clamp(10px, 1.6vw, 26px);
+  background: rgba(246, 240, 233, 0.05);
+}
+.work__n,
+.work__y {
+  color: var(--dim);
+}
+.work__y {
+  text-align: right;
+}
+.work__t {
+  font-size: clamp(22px, 3.6vw, 52px);
+  font-variation-settings:
+    "wdth" 108,
+    "wght" 290;
+  letter-spacing: -0.01em;
+  line-height: 1.02;
+}
+.work__d {
+  font-family: var(--soft);
+  font-size: clamp(12px, 1.15vw, 17px);
+  font-weight: 500;
+  color: rgba(246, 240, 233, 0.78);
+}
+
+/* ------------------------------------------------------------------- about */
+.about {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: clamp(26px, 4vw, 72px) clamp(26px, 5vw, 90px);
+}
+.about__lead {
+  grid-column: 1 / -1;
+  margin: 0;
+  max-width: 20ch;
+  font-size: clamp(26px, 4.4vw, 68px);
+  font-variation-settings:
+    "wdth" 108,
+    "wght" 290;
+  letter-spacing: -0.012em;
+  line-height: 1.06;
+}
+.about__body {
+  font-family: var(--soft);
+  font-weight: 500;
+  font-size: clamp(13px, 1.2vw, 18px);
+  line-height: 1.65;
+  color: rgba(246, 240, 233, 0.8);
+  max-width: 46ch;
+}
+.about__body p {
+  margin: 0 0 1em;
+}
+.stats {
+  margin: 0;
+  align-self: start;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 26px 20px;
+}
+.stats div {
+  border-top: 1px solid var(--hair);
+  padding-top: 12px;
+}
+.stats dt {
+  color: var(--dim);
+  margin-bottom: 8px;
+}
+.stats dd {
+  margin: 0;
+  font-size: clamp(24px, 2.8vw, 40px);
+  font-variation-settings:
+    "wdth" 108,
+    "wght" 300;
+  line-height: 1;
+}
+
+/* ------------------------------------------------------------------ footer */
+.foot__big {
+  margin: 0 0 clamp(44px, 6vw, 90px);
+  font-size: clamp(38px, 9vw, 168px);
+  font-variation-settings:
+    "wdth" 112,
+    "wght" 285;
+  letter-spacing: -0.018em;
+  line-height: 0.88;
+  text-transform: uppercase;
+}
+.foot__grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 26px;
+  padding-bottom: clamp(38px, 5vw, 70px);
+  border-bottom: 1px solid var(--hair);
+}
+.foot__mail {
+  font-size: clamp(17px, 2.2vw, 32px);
+  font-variation-settings:
+    "wdth" 106,
+    "wght" 300;
+  border-bottom: 1px solid var(--hair);
+  padding-bottom: 5px;
+  transition: border-color 0.4s;
+}
+.foot__mail:hover {
+  border-color: var(--ink);
+}
+.foot__soc {
+  list-style: none;
+  display: flex;
+  gap: clamp(14px, 2vw, 30px);
+  margin: 0;
+  padding: 0;
+  color: var(--dim);
+}
+.foot__soc a:hover {
+  color: var(--ink);
+}
+.foot__base {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding-top: 22px;
+  color: var(--dim);
+}
+
+/* ------------------------------------------------- reveal-on-scroll helper */
+.panel p,
+.panel dd,
+.work__t,
+.work__d,
+.foot__mail {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.rise {
+  opacity: 0;
+  transform: translateY(26px);
+  transition:
+    opacity 0.9s var(--ease),
+    transform 0.9s var(--ease);
+}
+.rise.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* --------------------------------------------------------------- responsive */
+@media (max-width: 860px) {
+  .rail,
+  .nav__link {
+    display: none;
+  }
+
+  /* h2 + meta are both nowrap; side by side they overflow a phone. Stack them. */
+  .panel__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .rule {
+    display: none;
+  }
+
+  /* no room to tuck the notes into the type — set them as a subtitle instead */
+  .hero__type {
+    font-size: clamp(40px, 14.5vw, 370px);
+    transform: none;
+  }
+  .hero__block {
+    gap: 3px;
+    transform: translateY(-8svh);
+  }
+  .tag {
+    position: static;
+    top: auto;
+    right: auto;
+    left: auto;
+    text-align: center;
+  }
+  .tag--l {
+    margin-top: 18px;
+  }
+  .tag br {
+    display: none; /* the source has spaces around it, so the words stay apart */
+  }
+  .hero__foot {
+    justify-content: center;
+  }
+  .work__row {
+    grid-template-columns: 34px minmax(0, 1fr) 50px;
+  }
+  .work__d {
+    grid-column: 2 / 4;
+  }
+  .about {
+    grid-template-columns: 1fr;
+  }
+  .hero__foot span:first-child {
+    display: none;
+  }
+}
+
+@media (max-width: 560px) {
+  .hero__cta {
+    flex-direction: column;
+    align-items: stretch;
+    width: calc(100% - var(--pad) * 2);
+  }
+  .btn {
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .scroll-cue::after {
+    animation: none;
+    transform: scaleX(1);
+  }
+  .rise {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" href="/favicon.svg" />
+    <title>Marina Budarina — Interface Design</title>
+    <meta
+      name="description"
+      content="Marina Budarina — independent interface designer. Selected work, 2024."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,100..900&family=JetBrains+Mono:wght@200..500&family=Quicksand:wght@400..600&display=swap"
+      rel="stylesheet"
+    />
+    <script type="module" src="/src/main.js"></script>
+  </head>
+  <body>
+    <!-- loader ---------------------------------------------------------- -->
+    <div id="loader">
+      <div class="loader__bar"><i id="loaderFill"></i></div>
+      <div class="loader__row">
+        <span>KOI</span><span id="loaderPct">00</span>
+      </div>
+    </div>
+
+    <!-- Refraction. The headline sits behind the water, so it has to bend when
+         the surface moves. It is real HTML, so this is an SVG displacement map
+         rather than anything in the 3D scene; koi.js drives `scale` from the
+         live ripple field. ---------------------------------------------------->
+    <svg class="filter-defs" aria-hidden="true">
+      <filter
+        id="water"
+        x="-6%"
+        y="-6%"
+        width="112%"
+        height="112%"
+        color-interpolation-filters="sRGB"
+      >
+        <feTurbulence
+          type="fractalNoise"
+          baseFrequency="0.0035 0.0055"
+          numOctaves="1"
+          seed="4"
+          result="noise"
+        >
+          <animate
+            attributeName="baseFrequency"
+            dur="19s"
+            values="0.0035 0.0055;0.0048 0.0042;0.0035 0.0055"
+            repeatCount="indefinite"
+          />
+        </feTurbulence>
+        <feDisplacementMap
+          id="waterDisp"
+          in="SourceGraphic"
+          in2="noise"
+          scale="1.5"
+          xChannelSelector="R"
+          yChannelSelector="G"
+        />
+      </filter>
+    </svg>
+
+    <!-- the koi lives here, fixed behind the page ------------------------ -->
+    <div id="stage" aria-hidden="true"></div>
+
+    <!-- nav -------------------------------------------------------------- -->
+    <header class="nav">
+      <a class="brand" href="#top">
+        <span class="brand__mark"></span>
+        <span class="brand__name">Marina<br />Budarina</span>
+      </a>
+      <nav class="nav__right">
+        <a class="nav__link" href="#work">Products</a>
+        <button class="menu-btn" id="menuBtn" aria-expanded="false">
+          <span>Menu</span>
+          <i class="menu-btn__ico"><b></b><b></b></i>
+        </button>
+      </nav>
+    </header>
+
+    <!-- menu overlay ------------------------------------------------------ -->
+    <div class="sheet" id="sheet" inert>
+      <ul class="sheet__list">
+        <li><a href="#top" data-i="01">Index</a></li>
+        <li><a href="#work" data-i="02">Selected work</a></li>
+        <li><a href="#about" data-i="03">About</a></li>
+        <li><a href="#contact" data-i="04">Contact</a></li>
+      </ul>
+      <div class="sheet__foot">
+        <span>Berlin — 52.52° N</span><span>hello@budarina.studio</span>
+      </div>
+    </div>
+
+    <main id="top">
+      <!-- hero ------------------------------------------------------------ -->
+      <section class="hero">
+        <!-- the notes are absolutely placed into the type on desktop, and fall
+             back into flow directly beneath it on a phone -->
+        <div class="hero__block">
+          <h1 class="hero__type">
+            <span class="l1">Create</span>
+            <span class="l2">Daily</span>
+          </h1>
+          <span class="tag tag--l"
+            >marina <br />
+            budarina</span
+          >
+          <span class="tag tag--r"
+            >interface <br />
+            design</span
+          >
+        </div>
+
+        <span class="rail rail--l">Interface designer / 01—05</span>
+        <span class="rail rail--r">Selected work / 2024</span>
+
+        <div class="hero__cta">
+          <a class="btn btn--fill" href="#work">View work <i>↗</i></a>
+          <a class="btn" href="#about">About me</a>
+        </div>
+
+        <div class="hero__foot">
+          <span>Independent / Berlin + everywhere</span>
+          <span class="scroll-cue">Scroll to explore</span>
+        </div>
+      </section>
+
+      <!-- work ------------------------------------------------------------ -->
+      <section class="panel" id="work">
+        <div class="panel__head">
+          <h2>Selected work</h2>
+          <span class="rule"></span>
+          <span class="panel__meta">05 projects / 2021—2024</span>
+        </div>
+
+        <ul class="work">
+          <li class="work__row">
+            <span class="work__n">01</span>
+            <span class="work__t">Nishikigoi</span>
+            <span class="work__d">Design system — 240 components</span>
+            <span class="work__y">2024</span>
+          </li>
+          <li class="work__row">
+            <span class="work__n">02</span>
+            <span class="work__t">Tidewater</span>
+            <span class="work__d">Banking app — iOS &amp; Android</span>
+            <span class="work__y">2024</span>
+          </li>
+          <li class="work__row">
+            <span class="work__n">03</span>
+            <span class="work__t">Almanac</span>
+            <span class="work__d">Editorial platform — 12 markets</span>
+            <span class="work__y">2023</span>
+          </li>
+          <li class="work__row">
+            <span class="work__n">04</span>
+            <span class="work__t">Halcyon</span>
+            <span class="work__d">Brand + site — B2B infrastructure</span>
+            <span class="work__y">2022</span>
+          </li>
+          <li class="work__row">
+            <span class="work__n">05</span>
+            <span class="work__t">Paper Lantern</span>
+            <span class="work__d">Motion identity — festival</span>
+            <span class="work__y">2021</span>
+          </li>
+        </ul>
+      </section>
+
+      <!-- about ----------------------------------------------------------- -->
+      <section class="panel" id="about">
+        <div class="panel__head">
+          <h2>About me</h2>
+          <span class="rule"></span>
+          <span class="panel__meta">Since 2016</span>
+        </div>
+
+        <div class="about">
+          <p class="about__lead">
+            I design interfaces the way a koi moves — deliberate, unhurried,
+            never fighting the current.
+          </p>
+          <div class="about__body">
+            <p>
+              Nine years shaping products for teams who care about the last five
+              percent. I work end to end: research, systems, interface, motion,
+              and the front-end that keeps it honest.
+            </p>
+            <p>
+              Independent since 2019. Based in Berlin, working with studios and
+              product teams across Europe and the US.
+            </p>
+          </div>
+          <dl class="stats">
+            <div>
+              <dt>Years</dt>
+              <dd>09</dd>
+            </div>
+            <div>
+              <dt>Projects</dt>
+              <dd>60+</dd>
+            </div>
+            <div>
+              <dt>Timezone</dt>
+              <dd>CET</dd>
+            </div>
+            <div>
+              <dt>Booking</dt>
+              <dd>Q3</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <!-- contact --------------------------------------------------------- -->
+      <footer class="panel foot" id="contact">
+        <p class="foot__big">Let's make<br />something</p>
+        <div class="foot__grid">
+          <a class="foot__mail" href="mailto:hello@budarina.studio"
+            >hello@budarina.studio</a
+          >
+          <ul class="foot__soc">
+            <li><a href="#contact">Instagram</a></li>
+            <li><a href="#contact">Are.na</a></li>
+            <li><a href="#contact">Read.cv</a></li>
+          </ul>
+        </div>
+        <div class="foot__base">
+          <span>© 2024 Marina Budarina</span>
+          <span>Berlin + everywhere</span>
+        </div>
+      </footer>
+    </main>
+  </body>
+</html>
